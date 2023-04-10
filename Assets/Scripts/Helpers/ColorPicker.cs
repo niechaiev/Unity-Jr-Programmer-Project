@@ -31,7 +31,7 @@ public class ColorPicker : MonoBehaviour
 
                 newButton.interactable = false;
                 
-                onColorChanged.Invoke(SelectedColor);
+                onColorChanged(SelectedColor);
             });
             
             m_ColorButtons.Add(newButton);
