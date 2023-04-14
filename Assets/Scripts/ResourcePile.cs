@@ -10,9 +10,24 @@ public class ResourcePile : Building
 {
     public ResourceItem Item;
 
-    public float ProductionSpeed = 0.5f;
+    private float productionSpeed = 0.5f;
+
+
 
     private float m_CurrentProduction = 0.0f;
+
+    public float ProductionSpeed { get => productionSpeed; 
+        set
+        { if (value < 0.0f)
+            {
+                Debug.LogError("Negachin");
+            }
+            else
+            {
+                productionSpeed = value;
+            }
+        }
+    }
 
     private void Update()
     {
