@@ -1,6 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Helpers;
 using UnityEngine;
 
 /// <summary>
@@ -14,13 +12,13 @@ public class ResourcePile : Building
 
 
 
-    private float m_CurrentProduction = 0.0f;
+    private float currentProduction;
 
     public float ProductionSpeed { get => productionSpeed; 
         set
         { if (value < 0.0f)
             {
-                Debug.LogError("Negachin");
+                //Debug.LogError("Negachin");
             }
             else
             {
@@ -31,17 +29,17 @@ public class ResourcePile : Building
 
     private void Update()
     {
-        if (m_CurrentProduction > 1.0f)
+        if (currentProduction > 1.0f)
         {
-            int amountToAdd = Mathf.FloorToInt(m_CurrentProduction);
+            int amountToAdd = Mathf.FloorToInt(currentProduction);
             int leftOver = AddItem(Item.Id, amountToAdd);
 
-            m_CurrentProduction = m_CurrentProduction - amountToAdd + leftOver;
+            currentProduction = currentProduction - amountToAdd + leftOver;
         }
         
-        if (m_CurrentProduction < 1.0f)
+        if (currentProduction < 1.0f)
         {
-            m_CurrentProduction += ProductionSpeed * Time.deltaTime;
+            currentProduction += ProductionSpeed * Time.deltaTime;
         }
     }
 

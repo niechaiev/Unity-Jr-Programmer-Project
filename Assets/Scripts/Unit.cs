@@ -1,6 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using Helpers;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,20 +12,23 @@ public abstract class Unit : MonoBehaviour,
 {
     public float Speed = 3;
 
-    protected NavMeshAgent m_Agent;
-    protected Building m_Target;
+    protected NavMeshAgent Agent;
+    protected Building Target;
 
     protected void Awake()
     {
-        m_Agent = GetComponent<NavMeshAgent>();
-        m_Agent.speed = Speed;
-        m_Agent.acceleration = 999;
-        m_Agent.angularSpeed = 999;
+        Agent = GetComponent<NavMeshAgent>();
+        Agent.speed = Speed;
+        Agent.acceleration = 999;
+        Agent.angularSpeed = 999;
     }
 
     private void Start()
     {
-        SetColor(MainManager.Instance.TeamColor);
+        if (MainManager.Instance != null)
+        {
+            SetColor(MainManager.Instance.TeamColor);
+        }
     }
 
     void SetColor(Color c)
@@ -40,12 +42,12 @@ public abstract class Unit : MonoBehaviour,
 
     private void Update()
     {
-        if (m_Target != null)
+        if (Target != null)
         {
-            float distance = Vector3.Distance(m_Target.transform.position, transform.position);
+            float distance = Vector3.Distance(Target.transform.position, transform.position);
             if (distance < 2.0f)
             {
-                m_Agent.isStopped = true;
+                Agent.isStopped = true;
                 BuildingInRange();
             }
         }
@@ -53,21 +55,21 @@ public abstract class Unit : MonoBehaviour,
 
     public virtual void GoTo(Building target)
     {
-        m_Target = target;
+        this.Target = target;
 
-        if (m_Target != null)
+        if (this.Target != null)
         {
-            m_Agent.SetDestination(m_Target.transform.position);
-            m_Agent.isStopped = false;
+            Agent.SetDestination(this.Target.transform.position);
+            Agent.isStopped = false;
         }
     }
 
     public virtual void GoTo(Vector3 position)
     {
         //we don't have a target anymore if we order to go to a random point.
-        m_Target = null;
-        m_Agent.SetDestination(position);
-        m_Agent.isStopped = false;
+        Target = null;
+        Agent.SetDestination(position);
+        Agent.isStopped = false;
     }
 
 

@@ -1,42 +1,40 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ProductivityUnit : Unit
 {
-    ResourcePile m_currentPile = null;
-    public float ProductiviyMultiplier = 2;
+    ResourcePile currentPile;
+    public float ProductivityMultiplier = 2;
 
     protected override void BuildingInRange()
     {
-        if (m_currentPile == null)
+        if (currentPile == null)
         {
-            ResourcePile pile = m_Target as ResourcePile;
+            ResourcePile pile = Target as ResourcePile;
             if (pile != null)
             {
-                m_currentPile = pile;
-                m_currentPile.ProductionSpeed *= ProductiviyMultiplier;
+                currentPile = pile;
+                currentPile.ProductionSpeed *= ProductivityMultiplier;
             }
         }
     }
-    void ResetProducitvity() 
+    void ResetProductivity() 
     {
-        if (m_currentPile != null)
+        if (currentPile != null)
         {
-            m_currentPile.ProductionSpeed /= ProductiviyMultiplier;
-            m_currentPile = null;
+            currentPile.ProductionSpeed /= ProductivityMultiplier;
+            currentPile = null;
         }    
     }
 
     public override void GoTo(Building target)
     {
-        ResetProducitvity();
+        ResetProductivity();
         base.GoTo(target);
     }
 
     public override void GoTo(Vector3 position)
     {
-        ResetProducitvity();
+        ResetProductivity();
         base.GoTo(position);
     }
 

@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
@@ -8,7 +6,7 @@ public class MainManager : MonoBehaviour
 {
     // Start is called before the first frame update
     public static MainManager Instance { get; private set; }
-    public Color TeamColor = new Color();
+    public Color TeamColor;
     private void Awake()
     {
         if (Instance != null)

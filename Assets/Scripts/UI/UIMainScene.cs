@@ -1,6 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using Helpers;
+using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,8 +18,8 @@ public class UIMainScene : MonoBehaviour
     public InfoPopup InfoPopup;
     public ResourceDatabase ResourceDB;
 
-    protected IUIInfoContent m_CurrentContent;
-    protected List<Building.InventoryEntry> m_ContentBuffer = new List<Building.InventoryEntry>();
+    protected IUIInfoContent CurrentContent;
+    protected List<Building.InventoryEntry> ContentBuffer = new List<Building.InventoryEntry>();
 
 
     private void Awake()
@@ -36,7 +36,7 @@ public class UIMainScene : MonoBehaviour
 
     private void Update()
     {
-        if (m_CurrentContent == null)
+        if (CurrentContent == null)
             return;
         
         //This is not the most efficient, as we reconstruct everything every time. A more efficient way would check if
@@ -44,13 +44,13 @@ public class UIMainScene : MonoBehaviour
         //update (match an entry content ta type and just update the count) but simplicity in this tutorial we do that
         //every time, this won't be a bottleneck here. 
 
-        InfoPopup.Data.text = m_CurrentContent.GetData();
+        InfoPopup.Data.text = CurrentContent.GetData();
         
         InfoPopup.ClearContent();
-        m_ContentBuffer.Clear();
+        ContentBuffer.Clear();
         
-        m_CurrentContent.GetContent(ref m_ContentBuffer);
-        foreach (var entry in m_ContentBuffer)
+        CurrentContent.GetContent(ref ContentBuffer);
+        foreach (var entry in ContentBuffer)
         {
             Sprite icon = null;
             if (ResourceDB != null)
@@ -69,7 +69,7 @@ public class UIMainScene : MonoBehaviour
         else
         {
             InfoPopup.gameObject.SetActive(true);
-            m_CurrentContent = content;
+            CurrentContent = content;
             InfoPopup.Name.text = content.GetName();
         }
     }

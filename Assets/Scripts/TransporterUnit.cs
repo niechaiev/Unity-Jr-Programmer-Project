@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,36 +8,36 @@ public class TransporterUnit : Unit
 {
     public int MaxAmountTransported = 1;
 
-    private Building m_CurrentTransportTarget;
-    private Building.InventoryEntry m_Transporting = new Building.InventoryEntry();
+    private Building currentTransportTarget;
+    private Building.InventoryEntry transporting = new();
 
     // We override the GoTo function to remove the current transport target, as any go to order will cancel the transport
     public override void GoTo(Vector3 position)
     {
         base.GoTo(position);
-        m_CurrentTransportTarget = null;
+        currentTransportTarget = null;
     }
     
     protected override void BuildingInRange()
     {
-        if (m_Target == Base.Instance)
+        if (Target == Base.Instance)
         {
             //we arrive at the base, unload!
-            if (m_Transporting.Count > 0)
-                m_Target.AddItem(m_Transporting.ResourceId, m_Transporting.Count);
+            if (transporting.Count > 0)
+                Target.AddItem(transporting.ResourceId, transporting.Count);
 
             //we go back to the building we came from
-            GoTo(m_CurrentTransportTarget);
-            m_Transporting.Count = 0;
-            m_Transporting.ResourceId = "";
+            GoTo(currentTransportTarget);
+            transporting.Count = 0;
+            transporting.ResourceId = "";
         }
         else
         {
-            if (m_Target.Inventory.Count > 0)
+            if (Target.Inventory.Count > 0)
             {
-                m_Transporting.ResourceId = m_Target.Inventory[0].ResourceId;
-                m_Transporting.Count = m_Target.GetItem(m_Transporting.ResourceId, MaxAmountTransported);
-                m_CurrentTransportTarget = m_Target;
+                transporting.ResourceId = Target.Inventory[0].ResourceId;
+                transporting.Count = Target.GetItem(transporting.ResourceId, MaxAmountTransported);
+                currentTransportTarget = Target;
                 GoTo(Base.Instance);
             }
         }
@@ -57,7 +56,7 @@ public class TransporterUnit : Unit
 
     public override void GetContent(ref List<Building.InventoryEntry> content)
     {
-        if (m_Transporting.Count > 0)
-            content.Add(m_Transporting);
+        if (transporting.Count > 0)
+            content.Add(transporting);
     }
 }
