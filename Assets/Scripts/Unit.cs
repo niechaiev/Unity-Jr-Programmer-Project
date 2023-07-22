@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Helpers;
 using UnityEngine;
 using UnityEngine.AI;
+using Zenject;
 
 
 // Base class for all Unit. It will handle movement order given through the UserControl script.
@@ -14,6 +15,7 @@ public abstract class Unit : MonoBehaviour,
 
     protected NavMeshAgent Agent;
     protected Building Target;
+    private MainManager mainManager;
 
     protected void Awake()
     {
@@ -23,11 +25,16 @@ public abstract class Unit : MonoBehaviour,
         Agent.angularSpeed = 999;
     }
 
+    [Inject]
+    private void Construct(MainManager mainManagerRef)
+    {
+        mainManager = mainManagerRef;
+    }
     private void Start()
     {
-        if (MainManager.Instance != null)
+        if (mainManager != null)
         {
-            SetColor(MainManager.Instance.TeamColor);
+            SetColor(mainManager.TeamColor);
         }
     }
 
@@ -81,7 +88,7 @@ public abstract class Unit : MonoBehaviour,
 
     //Implementing the IUIInfoContent interface so the UI know it should display the UI when this is clicked on.
     //Implementation of all the functions are empty as default, but they are set as virtual so subclass units can
-    //override them to offer their own data to it.
+    //override them 
     public virtual string GetName()
     {
         return "Unit";
