@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 /// <summary>
 /// Subclass of Unit that will transport resource from a Resource Pile back to Base.
@@ -10,6 +11,7 @@ public class TransporterUnit : Unit
 
     private Building currentTransportTarget;
     private Building.InventoryEntry transporting = new();
+    private Base dropPoint;
 
     // We override the GoTo function to remove the current transport target, as any go to order will cancel the transport
     public override void GoTo(Vector3 position)
@@ -17,10 +19,16 @@ public class TransporterUnit : Unit
         base.GoTo(position);
         currentTransportTarget = null;
     }
+
+    [Inject]
+    private void Construct(Base dropPointRef)
+    {
+        dropPoint = dropPointRef;
+    }
     
     protected override void BuildingInRange()
     {
-        if (Target == Base.Instance)
+        if (Target == dropPoint)
         {
             //we arrive at the base, unload!
             if (transporting.Count > 0)
@@ -38,7 +46,7 @@ public class TransporterUnit : Unit
                 transporting.ResourceId = Target.Inventory[0].ResourceId;
                 transporting.Count = Target.GetItem(transporting.ResourceId, MaxAmountTransported);
                 currentTransportTarget = Target;
-                GoTo(Base.Instance);
+                GoTo(dropPoint);
             }
         }
     }
