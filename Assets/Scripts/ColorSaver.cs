@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.IO;
 
-public class MainManager : MonoBehaviour
+public class ColorSaver : MonoBehaviour
 {
     // Start is called before the first frame update
     public Color TeamColor;

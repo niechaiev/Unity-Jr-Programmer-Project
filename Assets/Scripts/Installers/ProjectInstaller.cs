@@ -1,14 +1,15 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using Zenject;
 
 namespace Installers
 {
     public class ProjectInstaller : MonoInstaller
     {
-        [SerializeField] private MainManager mainManager;
+        [FormerlySerializedAs("mainManager")] [SerializeField] private ColorSaver colorSaver;
         public override void InstallBindings()
         {
-            Container.Bind<MainManager>().FromComponentInNewPrefab(mainManager).AsSingle().NonLazy();
+            Container.Bind<ColorSaver>().FromComponentInNewPrefab(colorSaver).AsSingle().NonLazy();
         }
     }
 }

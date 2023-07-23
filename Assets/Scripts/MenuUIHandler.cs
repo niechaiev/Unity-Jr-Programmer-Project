@@ -13,25 +13,25 @@ using Zenject;
 public class MenuUIHandler : MonoBehaviour
 {
     public ColorPicker ColorPicker;
-    private MainManager mainManager;
+    private ColorSaver colorSaver;
 
     public void NewColorSelected(Color color)
     {
         // add code here to handle when a color is selected
-        mainManager.TeamColor = color;
+        colorSaver.TeamColor = color;
     }
 
     [Inject]
-    private void Construct(MainManager mainManagerRef)
+    private void Construct(ColorSaver colorSaverRef)
     {
-        mainManager = mainManagerRef;
+        colorSaver = colorSaverRef;
     }
     private void Start()
     {
         ColorPicker.Init();
         //this will call the NewColorSelected function when the color picker have a color button clicked.
         ColorPicker.onColorChanged += NewColorSelected;
-        ColorPicker.SelectColor(mainManager.TeamColor);
+        ColorPicker.SelectColor(colorSaver.TeamColor);
        
     }
     public void StartNew()
@@ -45,16 +45,16 @@ public class MenuUIHandler : MonoBehaviour
 #else
         Application.Quit();
 #endif
-        mainManager.SaveColor();
+        colorSaver.SaveColor();
     }
 
     public void SaveColorPicked()
     {
-        mainManager.SaveColor();
+        colorSaver.SaveColor();
     }
     public void LoadColorPicked()
     {
-        mainManager.LoadColor();
-        ColorPicker.SelectColor(mainManager.TeamColor);
+        colorSaver.LoadColor();
+        ColorPicker.SelectColor(colorSaver.TeamColor);
     }
 }
