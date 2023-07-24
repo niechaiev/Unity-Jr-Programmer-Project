@@ -1,12 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Buildings;
 using Units;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Vector2 = UnityEngine.Vector2;
-using Vector3 = UnityEngine.Vector3;
 
 /// <summary>
 /// This script handle all the control code, so detecting when the users click on a unit or building and selecting those
@@ -33,11 +30,39 @@ public class UserControl : MonoBehaviour
         playerInput.Enable();
         playerInput.Player.Select.performed += HandleSelection;
         playerInput.Player.Order.performed += HandleOrder;
+        playerInput.Player.MoveCamera.started += HandleCameraMovement;
+    }
+
+    private void HandleCameraMovement(InputAction.CallbackContext obj)
+    {
+        var gameCameraTransform = GameCamera.transform;
+
+        var move = obj.ReadValue<Vector2>();
+        gameCameraTransform.position += PanSpeed * Time.deltaTime * new Vector3(move.y, 0, -move.x);
+        var zoom = Input.mouseScrollDelta;
+
+        if ((GameCamera.transform.position.y > maxZoom || zoom.y < 0) &&
+            (GameCamera.transform.position.y < minZoom || zoom.y > 0))
+        {
+            gameCameraTransform.position += gameCameraTransform.forward * (zoom.y * (PanSpeed * 10 * Time.deltaTime));
+        }
     }
 
     public void HandleSelection(InputAction.CallbackContext callbackContext)
     {
-        var ray = GameCamera.ScreenPointToRay(Input.mousePosition);
+        //Debug.Log(callbackContext.action);
+        RaycastHit m_Hit;
+
+        var m_HitDetect = Physics.BoxCast(Mouse.current.position.ReadValue(), transform.localScale, transform.forward,
+            out m_Hit, transform.rotation, 100f);
+        if (m_HitDetect)
+        {
+            //Output the name of the Collider your Box hit
+            Debug.Log("Hit : " + m_Hit.collider.name);
+        }
+
+        var mousePosition = Mouse.current.position.ReadValue();
+        var ray = GameCamera.ScreenPointToRay(mousePosition);
         if (Physics.Raycast(ray, out var hit))
         {
             selected.Clear();
@@ -53,10 +78,19 @@ public class UserControl : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        //Test to see if there is a hit using a BoxCast
+        //Calculate using the center of the GameObject's Collider(could also just use the GameObject's position), half the GameObject's size, the direction, the GameObject's rotation, and the maximum distance as variables.
+        //Also fetch the hit data
+    }
+
     private void HandleOrder(InputAction.CallbackContext callbackContext)
     {
-        if(!selected.Any()) return;
-        var ray = GameCamera.ScreenPointToRay(Input.mousePosition);
+        // Debug.Log(callbackContext.action);
+        if (!selected.Any()) return;
+        var mousePosition = Mouse.current.position.ReadValue();
+        var ray = GameCamera.ScreenPointToRay(mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             var building = hit.collider.GetComponentInParent<Building>();
@@ -76,22 +110,9 @@ public class UserControl : MonoBehaviour
 
     private void Update()
     {
-        var gameCameraTransform = GameCamera.transform;
-        Vector2 move = new(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        gameCameraTransform.position += PanSpeed * Time.deltaTime * new Vector3(move.y, 0, -move.x);
-        Vector2 zoom = Input.mouseScrollDelta;
-
-        if ((GameCamera.transform.position.y > maxZoom || zoom.y < 0) &&
-            (GameCamera.transform.position.y < minZoom || zoom.y > 0))
-        {
-            gameCameraTransform.position += gameCameraTransform.forward * (zoom.y * (PanSpeed * 10 * Time.deltaTime));
-        }
-        
-
         MarkerHandling();
     }
-    
-    
+
 
     // Handle displaying the marker above the unit that is currently selected (or hiding it if no unit is selected)
     void MarkerHandling()

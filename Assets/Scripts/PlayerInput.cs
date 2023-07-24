@@ -53,6 +53,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MoveCamera"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""abb3c803-e308-475d-9d64-e1a5c9f0496f"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -88,6 +97,61 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""SelectMultiple"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""42dfabad-1aab-4ca9-b5a0-1b087587b940"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCamera"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""e03cdf55-74cb-4d7a-af88-5d62bfa0e2cb"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""97406e7d-1db4-4c79-8556-08a65f93d236"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""10a3ae9d-820f-4d7d-8b09-13dccc0bb643"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""43c7c64f-28c2-4160-aa5a-24328b7f4775"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -99,6 +163,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_Select = m_Player.FindAction("Select", throwIfNotFound: true);
         m_Player_Order = m_Player.FindAction("Order", throwIfNotFound: true);
         m_Player_SelectMultiple = m_Player.FindAction("SelectMultiple", throwIfNotFound: true);
+        m_Player_MoveCamera = m_Player.FindAction("MoveCamera", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -163,6 +228,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Select;
     private readonly InputAction m_Player_Order;
     private readonly InputAction m_Player_SelectMultiple;
+    private readonly InputAction m_Player_MoveCamera;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -170,6 +236,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Select => m_Wrapper.m_Player_Select;
         public InputAction @Order => m_Wrapper.m_Player_Order;
         public InputAction @SelectMultiple => m_Wrapper.m_Player_SelectMultiple;
+        public InputAction @MoveCamera => m_Wrapper.m_Player_MoveCamera;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -188,6 +255,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @SelectMultiple.started += instance.OnSelectMultiple;
             @SelectMultiple.performed += instance.OnSelectMultiple;
             @SelectMultiple.canceled += instance.OnSelectMultiple;
+            @MoveCamera.started += instance.OnMoveCamera;
+            @MoveCamera.performed += instance.OnMoveCamera;
+            @MoveCamera.canceled += instance.OnMoveCamera;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -201,6 +271,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @SelectMultiple.started -= instance.OnSelectMultiple;
             @SelectMultiple.performed -= instance.OnSelectMultiple;
             @SelectMultiple.canceled -= instance.OnSelectMultiple;
+            @MoveCamera.started -= instance.OnMoveCamera;
+            @MoveCamera.performed -= instance.OnMoveCamera;
+            @MoveCamera.canceled -= instance.OnMoveCamera;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -223,5 +296,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnSelect(InputAction.CallbackContext context);
         void OnOrder(InputAction.CallbackContext context);
         void OnSelectMultiple(InputAction.CallbackContext context);
+        void OnMoveCamera(InputAction.CallbackContext context);
     }
 }
