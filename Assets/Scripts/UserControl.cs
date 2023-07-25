@@ -1,80 +1,80 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Buildings;
 using DefaultNamespace;
 using Units;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// This script handle all the control code, so detecting when the users click on a unit or building and selecting those
-/// If a unit is selected it will give the order to go to the clicked point or building when right clicking.
-/// </summary>
 public class UserControl : MonoBehaviour
 {
     [SerializeField] private InputReader inputReader;
     [SerializeField] private LayerMask clickable;
+    [SerializeField] private RectTransform selectionBox;
+    [SerializeField] private Camera gameCamera;
 
-    public Camera GameCamera;
-    public float PanSpeed = 10.0f;
+    private readonly float panSpeed = 10.0f;
+    private readonly float minZoom = 20;
+    private readonly float maxZoom = 3;
 
     private List<Unit> selected;
-
-    private float minZoom = 20;
-    private float maxZoom = 3;
-
-    private PlayerInput playerInput;
-    private InputAction movement;
+    private bool isMultiSelect;
+    private bool isSelectPerforming;
     private Transform gameCameraTransform;
-    private Vector2 moveComposite;
+    private Vector2 startMousePosition;
 
     private void Start()
     {
-        gameCameraTransform = GameCamera.transform;
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
+
+        gameCameraTransform = gameCamera.transform;
         selected = new List<Unit>();
-        playerInput = new PlayerInput();
-        playerInput.Enable();
-        movement = playerInput.Player.MoveCamera;
-        inputReader.OnSelectPerformed += HandleSelection;
-        inputReader.OnOrderPerformed += HandleOrder;
-        inputReader.OnZoomCameraPerformed += HandleCameraZoom;
+
+        inputReader.OnSelectStarted += HandleSelectStarted;
+        inputReader.OnSelectPerformed += HandleSelectPerformed;
+        inputReader.OnSelectCanceled += HandleSelectCanceled;
+        inputReader.OnOrderStarted += HandleOrder;
+        inputReader.OnZoomCameraStarted += HandleCameraZoom;
+        inputReader.OnMultiSelectStarted += HandleMultiSelect;
+    }
+
+    private void HandleMultiSelect(bool state)
+    {
+        isMultiSelect = state;
     }
 
     private void HandleCameraMovement()
     {
-        gameCameraTransform.position += PanSpeed * Time.deltaTime *
+        if (inputReader.MoveComposite == Vector2.zero) return;
+
+        gameCameraTransform.position += panSpeed * Time.deltaTime *
                                         new Vector3(inputReader.MoveComposite.y, 0, -inputReader.MoveComposite.x);
     }
 
     private void HandleCameraZoom(InputAction.CallbackContext callbackContext)
     {
         var zoom = callbackContext.ReadValue<float>();
-        if ((GameCamera.transform.position.y > maxZoom || zoom < 0) &&
-            (GameCamera.transform.position.y < minZoom || zoom > 0))
+        if ((gameCamera.transform.position.y > maxZoom || zoom < 0) &&
+            (gameCamera.transform.position.y < minZoom || zoom > 0))
         {
-            gameCameraTransform.position += gameCameraTransform.forward * (zoom * (PanSpeed * 10 * Time.deltaTime));
+            gameCameraTransform.position += gameCameraTransform.forward * (zoom * (panSpeed * 10 * Time.deltaTime));
         }
     }
 
-    public void HandleSelection(InputAction.CallbackContext callbackContext)
+    public void HandleSelectStarted(InputAction.CallbackContext callbackContext)
     {
-        /*RaycastHit m_Hit;
+        selectionBox.sizeDelta = Vector2.zero;
+        selectionBox.gameObject.SetActive(true);
+        startMousePosition = Mouse.current.position.ReadValue();
+        var ray = gameCamera.ScreenPointToRay(startMousePosition);
 
-        var m_HitDetect = Physics.BoxCast(Mouse.current.position.ReadValue(), transform.localScale, transform.forward,
-            out m_Hit, transform.rotation, 100f);
-        if (m_HitDetect)
-        {
-            //Output the name of the Collider your Box hit
-            Debug.Log("Hit : " + m_Hit.collider.name);
-        }*/
+        if (!isMultiSelect)
+            DeselectAll();
 
-        var mousePosition = Mouse.current.position.ReadValue();
-        var ray = GameCamera.ScreenPointToRay(mousePosition);
-        DeselectAll();
         if (Physics.Raycast(ray, out var hit, Mathf.Infinity, clickable))
         {
             //the collider could be children of the unit, so we make sure to check in the parent
+
             var unit = hit.transform.GetComponentInParent<Unit>();
             if (unit != null)
             {
@@ -89,6 +89,20 @@ public class UserControl : MonoBehaviour
         }
     }
 
+    private void HandleSelectPerformed(InputAction.CallbackContext obj)
+    {
+        isSelectPerforming = true;
+        ResizeSelectionBox(obj.ReadValue<Vector2>());
+        
+    }
+
+    private void HandleSelectCanceled(InputAction.CallbackContext obj)
+    {
+        selectionBox.sizeDelta = Vector2.zero;
+        selectionBox.gameObject.SetActive(false);
+        isSelectPerforming = false;
+    }
+
     private void DeselectAll()
     {
         foreach (var selectedUnit in selected)
@@ -100,9 +114,9 @@ public class UserControl : MonoBehaviour
     private void HandleOrder(InputAction.CallbackContext callbackContext)
     {
         // Debug.Log(callbackContext.action);
-        if (!selected.Any()) return;
+        if (selected.Count == 0) return;
         var mousePosition = Mouse.current.position.ReadValue();
-        var ray = GameCamera.ScreenPointToRay(mousePosition);
+        var ray = gameCamera.ScreenPointToRay(mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             var building = hit.collider.GetComponentInParent<Building>();
@@ -120,8 +134,42 @@ public class UserControl : MonoBehaviour
         }
     }
 
+    private void ResizeSelectionBox(Vector2 mousePosition)
+    {
+        Debug.Log(mousePosition);
+        float width = Input.mousePosition.x - startMousePosition.x;
+        float height = Input.mousePosition.y - startMousePosition.y;
+        
+        
+
+        selectionBox.anchoredPosition = startMousePosition + new Vector2(width / 2, height / 2);
+        selectionBox.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
+
+        Bounds bounds = new Bounds(selectionBox.anchoredPosition, selectionBox.sizeDelta);
+
+        /*for (int i = 0; i < SelectionManager.Instance.AvailableUnits.Count; i++)
+        {
+            if (UnitIsInSelectionBox(
+                    Camera.WorldToScreenPoint(SelectionManager.Instance.AvailableUnits[i].transform.position), bounds))
+            {
+                if (!SelectionManager.Instance.IsSelected(SelectionManager.Instance.AvailableUnits[i]))
+                {
+                    newlySelectedUnits.Add(SelectionManager.Instance.AvailableUnits[i]);
+                }
+
+                deselectedUnits.Remove(SelectionManager.Instance.AvailableUnits[i]);
+            }
+            else
+            {
+                deselectedUnits.Add(SelectionManager.Instance.AvailableUnits[i]);
+                newlySelectedUnits.Remove(SelectionManager.Instance.AvailableUnits[i]);
+            }
+        }*/
+    }
+
     private void Update()
     {
         HandleCameraMovement();
+        
     }
 }

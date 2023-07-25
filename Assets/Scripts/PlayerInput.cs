@@ -62,6 +62,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MultiSelect"",
+                    ""type"": ""Button"",
+                    ""id"": ""d164bc3d-ccae-449a-b518-a27eeaa6bb79"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SelectDrag"",
+                    ""type"": ""Button"",
+                    ""id"": ""ee2c54cd-fcee-42e5-bf9a-4b24ae076e77"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -174,6 +192,50 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""ZoomCamera"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""92837d7f-15b1-4a0e-9781-15f12175b23e"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MultiSelect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""One Modifier"",
+                    ""id"": ""4db5a8cf-9082-490d-87f4-1f587e440921"",
+                    ""path"": ""OneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectDrag"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""71380230-a790-4da6-aa71-dd60c9d779e1"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectDrag"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""binding"",
+                    ""id"": ""a2cba808-a51c-410d-b41f-1997b26bfc84"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectDrag"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -186,6 +248,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_Order = m_Player.FindAction("Order", throwIfNotFound: true);
         m_Player_MoveCamera = m_Player.FindAction("MoveCamera", throwIfNotFound: true);
         m_Player_ZoomCamera = m_Player.FindAction("ZoomCamera", throwIfNotFound: true);
+        m_Player_MultiSelect = m_Player.FindAction("MultiSelect", throwIfNotFound: true);
+        m_Player_SelectDrag = m_Player.FindAction("SelectDrag", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -251,6 +315,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Order;
     private readonly InputAction m_Player_MoveCamera;
     private readonly InputAction m_Player_ZoomCamera;
+    private readonly InputAction m_Player_MultiSelect;
+    private readonly InputAction m_Player_SelectDrag;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -259,6 +325,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Order => m_Wrapper.m_Player_Order;
         public InputAction @MoveCamera => m_Wrapper.m_Player_MoveCamera;
         public InputAction @ZoomCamera => m_Wrapper.m_Player_ZoomCamera;
+        public InputAction @MultiSelect => m_Wrapper.m_Player_MultiSelect;
+        public InputAction @SelectDrag => m_Wrapper.m_Player_SelectDrag;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -280,6 +348,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ZoomCamera.started += instance.OnZoomCamera;
             @ZoomCamera.performed += instance.OnZoomCamera;
             @ZoomCamera.canceled += instance.OnZoomCamera;
+            @MultiSelect.started += instance.OnMultiSelect;
+            @MultiSelect.performed += instance.OnMultiSelect;
+            @MultiSelect.canceled += instance.OnMultiSelect;
+            @SelectDrag.started += instance.OnSelectDrag;
+            @SelectDrag.performed += instance.OnSelectDrag;
+            @SelectDrag.canceled += instance.OnSelectDrag;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -296,6 +370,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ZoomCamera.started -= instance.OnZoomCamera;
             @ZoomCamera.performed -= instance.OnZoomCamera;
             @ZoomCamera.canceled -= instance.OnZoomCamera;
+            @MultiSelect.started -= instance.OnMultiSelect;
+            @MultiSelect.performed -= instance.OnMultiSelect;
+            @MultiSelect.canceled -= instance.OnMultiSelect;
+            @SelectDrag.started -= instance.OnSelectDrag;
+            @SelectDrag.performed -= instance.OnSelectDrag;
+            @SelectDrag.canceled -= instance.OnSelectDrag;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -319,5 +399,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnOrder(InputAction.CallbackContext context);
         void OnMoveCamera(InputAction.CallbackContext context);
         void OnZoomCamera(InputAction.CallbackContext context);
+        void OnMultiSelect(InputAction.CallbackContext context);
+        void OnSelectDrag(InputAction.CallbackContext context);
     }
 }
