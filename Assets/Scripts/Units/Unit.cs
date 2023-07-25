@@ -14,6 +14,8 @@ namespace Units
     public abstract class Unit : MonoBehaviour,
         UIMainScene.IUIInfoContent
     {
+        [SerializeField] private GameObject ringDecal;
+        
         public float Speed = 3;
 
         protected NavMeshAgent Agent;
@@ -105,6 +107,11 @@ namespace Units
         public virtual void GetContent(ref List<Building.InventoryEntry> content)
         {
         
+        }
+
+        public virtual void ToggleSelection(bool toggle)
+        {
+            ringDecal.SetActive(toggle);
         }
     }
 }

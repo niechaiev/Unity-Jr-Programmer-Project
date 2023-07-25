@@ -24,19 +24,19 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SelectMultiple",
-                    "type": "Button",
-                    "id": "a19e9c11-3034-4306-851a-eda7801c91bf",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "MoveCamera",
-                    "type": "PassThrough",
+                    "type": "Value",
                     "id": "abb3c803-e308-475d-9d64-e1a5c9f0496f",
                     "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "ZoomCamera",
+                    "type": "Button",
+                    "id": "ffe192d4-a59f-475c-95c5-15c27b194077",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -62,17 +62,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Order",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "578c5f41-f1c0-49ef-a82b-df0bfb4ede97",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "Hold",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectMultiple",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -128,6 +117,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "MoveCamera",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "1D Axis",
+                    "id": "d834d37b-ee06-4a2b-a7a3-fa7da9d66b9d",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "Clamp(min=-1,max=1)",
+                    "groups": "",
+                    "action": "ZoomCamera",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "aa050463-36ce-4ab6-a752-8a7382f36ebf",
+                    "path": "<Mouse>/scroll/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ZoomCamera",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "0e789f1d-2ba3-43c7-a34c-a10dc1a1fcbc",
+                    "path": "<Mouse>/scroll/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ZoomCamera",
                     "isComposite": false,
                     "isPartOfComposite": true
                 }

@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Buildings;
+using DefaultNamespace;
 using Units;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,9 +13,11 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class UserControl : MonoBehaviour
 {
+    [SerializeField] private InputReader inputReader;
+    [SerializeField] private LayerMask clickable;
+
     public Camera GameCamera;
     public float PanSpeed = 10.0f;
-    public GameObject Marker;
 
     private List<Unit> selected;
 
@@ -21,37 +25,41 @@ public class UserControl : MonoBehaviour
     private float maxZoom = 3;
 
     private PlayerInput playerInput;
+    private InputAction movement;
+    private Transform gameCameraTransform;
+    private Vector2 moveComposite;
 
     private void Start()
     {
-        //Marker.SetActive(false);
+        gameCameraTransform = GameCamera.transform;
         selected = new List<Unit>();
         playerInput = new PlayerInput();
         playerInput.Enable();
-        playerInput.Player.Select.performed += HandleSelection;
-        playerInput.Player.Order.performed += HandleOrder;
-        playerInput.Player.MoveCamera.started += HandleCameraMovement;
+        movement = playerInput.Player.MoveCamera;
+        inputReader.OnSelectPerformed += HandleSelection;
+        inputReader.OnOrderPerformed += HandleOrder;
+        inputReader.OnZoomCameraPerformed += HandleCameraZoom;
     }
 
-    private void HandleCameraMovement(InputAction.CallbackContext obj)
+    private void HandleCameraMovement()
     {
-        var gameCameraTransform = GameCamera.transform;
+        gameCameraTransform.position += PanSpeed * Time.deltaTime *
+                                        new Vector3(inputReader.MoveComposite.y, 0, -inputReader.MoveComposite.x);
+    }
 
-        var move = obj.ReadValue<Vector2>();
-        gameCameraTransform.position += PanSpeed * Time.deltaTime * new Vector3(move.y, 0, -move.x);
-        var zoom = Input.mouseScrollDelta;
-
-        if ((GameCamera.transform.position.y > maxZoom || zoom.y < 0) &&
-            (GameCamera.transform.position.y < minZoom || zoom.y > 0))
+    private void HandleCameraZoom(InputAction.CallbackContext callbackContext)
+    {
+        var zoom = callbackContext.ReadValue<float>();
+        if ((GameCamera.transform.position.y > maxZoom || zoom < 0) &&
+            (GameCamera.transform.position.y < minZoom || zoom > 0))
         {
-            gameCameraTransform.position += gameCameraTransform.forward * (zoom.y * (PanSpeed * 10 * Time.deltaTime));
+            gameCameraTransform.position += gameCameraTransform.forward * (zoom * (PanSpeed * 10 * Time.deltaTime));
         }
     }
 
     public void HandleSelection(InputAction.CallbackContext callbackContext)
     {
-        //Debug.Log(callbackContext.action);
-        RaycastHit m_Hit;
+        /*RaycastHit m_Hit;
 
         var m_HitDetect = Physics.BoxCast(Mouse.current.position.ReadValue(), transform.localScale, transform.forward,
             out m_Hit, transform.rotation, 100f);
@@ -59,17 +67,20 @@ public class UserControl : MonoBehaviour
         {
             //Output the name of the Collider your Box hit
             Debug.Log("Hit : " + m_Hit.collider.name);
-        }
+        }*/
 
         var mousePosition = Mouse.current.position.ReadValue();
         var ray = GameCamera.ScreenPointToRay(mousePosition);
-        if (Physics.Raycast(ray, out var hit))
+        DeselectAll();
+        if (Physics.Raycast(ray, out var hit, Mathf.Infinity, clickable))
         {
-            selected.Clear();
             //the collider could be children of the unit, so we make sure to check in the parent
             var unit = hit.transform.GetComponentInParent<Unit>();
-            selected.Add(unit);
-
+            if (unit != null)
+            {
+                selected.Add(unit);
+                unit.ToggleSelection(true);
+            }
 
             //check if the hit object have a IUIInfoContent to display in the UI
             //if there is none, this will be null, so this will hid the panel if it was displayed
@@ -78,11 +89,12 @@ public class UserControl : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
+    private void DeselectAll()
     {
-        //Test to see if there is a hit using a BoxCast
-        //Calculate using the center of the GameObject's Collider(could also just use the GameObject's position), half the GameObject's size, the direction, the GameObject's rotation, and the maximum distance as variables.
-        //Also fetch the hit data
+        foreach (var selectedUnit in selected)
+            selectedUnit.ToggleSelection(false);
+
+        selected.Clear();
     }
 
     private void HandleOrder(InputAction.CallbackContext callbackContext)
@@ -110,23 +122,6 @@ public class UserControl : MonoBehaviour
 
     private void Update()
     {
-        MarkerHandling();
-    }
-
-
-    // Handle displaying the marker above the unit that is currently selected (or hiding it if no unit is selected)
-    void MarkerHandling()
-    {
-        /*if (selected == null && Marker.activeInHierarchy)
-        {
-            Marker.SetActive(false);
-            Marker.transform.SetParent(null);
-        }
-        else if (selected != null && Marker.transform.parent != selected.transform)
-        {
-            Marker.SetActive(true);
-            Marker.transform.SetParent(selected.transform, false);
-            Marker.transform.localPosition = Vector3.zero;
-        }  */
+        HandleCameraMovement();
     }
 }
