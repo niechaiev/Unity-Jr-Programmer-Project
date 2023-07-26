@@ -60,7 +60,6 @@ namespace DefaultNamespace
         {
             if (context.performed)
             {
-                Debug.Log(context);
                 OnSelectPerformed?.Invoke(context);
             }
 
