@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Units;
 
 public class Selector
@@ -44,8 +46,6 @@ public class Selector
 
     public void Select(List<Unit> units)
     {
-   
-
         if (!isMultiSelect)
         {
             DeselectAll();
@@ -53,8 +53,15 @@ public class Selector
             return;
         }
 
+        if (units.Intersect(SelectedUnits).Count() != units.Count)
+        {
+            AddSelected(units);
+            return;
+        }
+        
         foreach (var unit in units)
         {
+           
             if (IsSelected(unit))
                 RemoveSelected(unit);
             else

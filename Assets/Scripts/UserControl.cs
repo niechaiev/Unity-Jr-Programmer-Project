@@ -80,6 +80,7 @@ public class UserControl : MonoBehaviour
 
     private void HandleSelectCanceled(InputAction.CallbackContext obj)
     {
+        ConfirmSelectionBox();
         selectionBox.sizeDelta = Vector2.zero;
         selectionBox.gameObject.SetActive(false);
 
@@ -127,6 +128,11 @@ public class UserControl : MonoBehaviour
         selectionBox.anchoredPosition = startMousePosition + new Vector2(width / 2, height / 2);
         selectionBox.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
 
+
+    }
+
+    private void ConfirmSelectionBox()
+    {
         Bounds bounds = new Bounds(selectionBox.anchoredPosition, selectionBox.sizeDelta);
 
         var unitsToSelect = new List<Unit>();
