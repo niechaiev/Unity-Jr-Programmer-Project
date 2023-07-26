@@ -4,6 +4,7 @@ using DefaultNamespace;
 using Units;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Zenject;
 
 public class UserControl : MonoBehaviour
 {
@@ -11,16 +12,21 @@ public class UserControl : MonoBehaviour
     [SerializeField] private LayerMask clickable;
     [SerializeField] private RectTransform selectionBox;
     [SerializeField] private Camera gameCamera;
+    private Selector selector;
 
     private readonly float panSpeed = 10.0f;
     private readonly float minZoom = 20;
     private readonly float maxZoom = 3;
 
-    private List<Unit> selected;
-    private bool isMultiSelect;
-    private bool isSelectPerforming;
     private Transform gameCameraTransform;
     private Vector2 startMousePosition;
+
+
+    [Inject]
+    private void Construct(Selector selectorRef)
+    {
+        selector = selectorRef;
+    }
 
     private void Start()
     {
@@ -28,7 +34,6 @@ public class UserControl : MonoBehaviour
         Application.targetFrameRate = 60;
 
         gameCameraTransform = gameCamera.transform;
-        selected = new List<Unit>();
 
         inputReader.OnSelectStarted += HandleSelectStarted;
         inputReader.OnSelectPerformed += HandleSelectPerformed;
@@ -40,7 +45,7 @@ public class UserControl : MonoBehaviour
 
     private void HandleMultiSelect(bool state)
     {
-        isMultiSelect = state;
+        selector.IsMultiSelect = state;
     }
 
     private void HandleCameraMovement()
@@ -66,61 +71,41 @@ public class UserControl : MonoBehaviour
         selectionBox.sizeDelta = Vector2.zero;
         selectionBox.gameObject.SetActive(true);
         startMousePosition = Mouse.current.position.ReadValue();
-        var ray = gameCamera.ScreenPointToRay(startMousePosition);
-
-        if (!isMultiSelect)
-            DeselectAll();
-
-        if (Physics.Raycast(ray, out var hit, Mathf.Infinity, clickable))
-        {
-            //the collider could be children of the unit, so we make sure to check in the parent
-
-            var unit = hit.transform.GetComponentInParent<Unit>();
-            if (unit != null)
-            {
-                selected.Add(unit);
-                unit.ToggleSelection(true);
-            }
-
-            //check if the hit object have a IUIInfoContent to display in the UI
-            //if there is none, this will be null, so this will hid the panel if it was displayed
-            var uiInfo = hit.collider.GetComponentInParent<UIMainScene.IUIInfoContent>();
-            UIMainScene.Instance.SetNewInfoContent(uiInfo);
-        }
     }
 
     private void HandleSelectPerformed(InputAction.CallbackContext obj)
     {
-        isSelectPerforming = true;
         ResizeSelectionBox(obj.ReadValue<Vector2>());
-        
     }
 
     private void HandleSelectCanceled(InputAction.CallbackContext obj)
     {
         selectionBox.sizeDelta = Vector2.zero;
         selectionBox.gameObject.SetActive(false);
-        isSelectPerforming = false;
-    }
 
-    private void DeselectAll()
-    {
-        foreach (var selectedUnit in selected)
-            selectedUnit.ToggleSelection(false);
+        startMousePosition = Mouse.current.position.ReadValue();
+        var ray = gameCamera.ScreenPointToRay(startMousePosition);
 
-        selected.Clear();
+        if (Physics.Raycast(ray, out var hit, Mathf.Infinity, clickable))
+        {
+            var unit = hit.transform.GetComponentInParent<Unit>();
+            selector.Select(unit);
+
+            var uiInfo = hit.collider.GetComponentInParent<UIMainScene.IUIInfoContent>();
+            UIMainScene.Instance.SetNewInfoContent(uiInfo);
+        }
     }
 
     private void HandleOrder(InputAction.CallbackContext callbackContext)
     {
         // Debug.Log(callbackContext.action);
-        if (selected.Count == 0) return;
+        if (selector.SelectedUnits.Count == 0) return;
         var mousePosition = Mouse.current.position.ReadValue();
         var ray = gameCamera.ScreenPointToRay(mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             var building = hit.collider.GetComponentInParent<Building>();
-            foreach (var selectedUnit in selected)
+            foreach (var selectedUnit in selector.SelectedUnits)
             {
                 if (building != null)
                 {
@@ -136,40 +121,33 @@ public class UserControl : MonoBehaviour
 
     private void ResizeSelectionBox(Vector2 mousePosition)
     {
-        Debug.Log(mousePosition);
-        float width = Input.mousePosition.x - startMousePosition.x;
-        float height = Input.mousePosition.y - startMousePosition.y;
-        
-        
+        var width = Mouse.current.position.x.ReadValue() - startMousePosition.x;
+        var height = Mouse.current.position.y.ReadValue() - startMousePosition.y;
 
         selectionBox.anchoredPosition = startMousePosition + new Vector2(width / 2, height / 2);
         selectionBox.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
 
         Bounds bounds = new Bounds(selectionBox.anchoredPosition, selectionBox.sizeDelta);
 
-        /*for (int i = 0; i < SelectionManager.Instance.AvailableUnits.Count; i++)
+        var unitsToSelect = new List<Unit>();
+        foreach (var availableUnit in selector.AvailableUnits)
         {
-            if (UnitIsInSelectionBox(
-                    Camera.WorldToScreenPoint(SelectionManager.Instance.AvailableUnits[i].transform.position), bounds))
+            if (IsUnitInBounds(gameCamera.WorldToScreenPoint(availableUnit.transform.position), bounds))
             {
-                if (!SelectionManager.Instance.IsSelected(SelectionManager.Instance.AvailableUnits[i]))
-                {
-                    newlySelectedUnits.Add(SelectionManager.Instance.AvailableUnits[i]);
-                }
+                unitsToSelect.Add(availableUnit);
+            }
+        }
+        selector.Select(unitsToSelect);
+    }
 
-                deselectedUnits.Remove(SelectionManager.Instance.AvailableUnits[i]);
-            }
-            else
-            {
-                deselectedUnits.Add(SelectionManager.Instance.AvailableUnits[i]);
-                newlySelectedUnits.Remove(SelectionManager.Instance.AvailableUnits[i]);
-            }
-        }*/
+    private bool IsUnitInBounds(Vector2 position, Bounds bounds)
+    {
+        return position.x > bounds.min.x && position.x < bounds.max.x
+                                         && position.y > bounds.min.y && position.y < bounds.max.y;
     }
 
     private void Update()
     {
         HandleCameraMovement();
-        
     }
 }

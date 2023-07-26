@@ -206,7 +206,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""One Modifier"",
-                    ""id"": ""4db5a8cf-9082-490d-87f4-1f587e440921"",
+                    ""id"": ""97142bb8-1c90-4f2f-83cd-1a8929bdf65b"",
                     ""path"": ""OneModifier"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -216,8 +216,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""modifier"",
-                    ""id"": ""71380230-a790-4da6-aa71-dd60c9d779e1"",
+                    ""name"": ""Modifier"",
+                    ""id"": ""53abb827-ab48-43fa-8118-7559a359a777"",
                     ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -227,8 +227,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""binding"",
-                    ""id"": ""a2cba808-a51c-410d-b41f-1997b26bfc84"",
+                    ""name"": ""Binding"",
+                    ""id"": ""8a94a111-2f8b-443a-8bf2-0e643e3e50e0"",
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
                     ""processors"": """",

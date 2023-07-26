@@ -10,6 +10,7 @@ namespace Installers
         public override void InstallBindings()
         {
             Container.Bind<DropPoint>().FromInstance(dropPoint).AsSingle().NonLazy();
+            Container.Bind<Selector>().AsSingle();
         }
     }
 }

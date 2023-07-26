@@ -21,6 +21,7 @@ namespace Units
         protected NavMeshAgent Agent;
         protected Building Target;
         private ColorSaver colorSaver;
+        private Selector selector;
 
         protected void Awake()
         {
@@ -31,8 +32,9 @@ namespace Units
         }
 
         [Inject]
-        private void Construct(ColorSaver colorSaverRef)
+        private void Construct(ColorSaver colorSaverRef, Selector selectorRef)
         {
+            selector = selectorRef;
             colorSaver = colorSaverRef;
         }
         private void Start()
@@ -41,6 +43,7 @@ namespace Units
             {
                 SetColor(colorSaver.TeamColor);
             }
+            selector.AvailableUnits.Add(this);
         }
 
         void SetColor(Color c)
@@ -109,9 +112,13 @@ namespace Units
         
         }
 
-        public virtual void ToggleSelection(bool toggle)
+        public void OnSelected()
         {
-            ringDecal.SetActive(toggle);
+            ringDecal.SetActive(true);
+        }
+        public void OnDeselected()
+        {
+            ringDecal.SetActive(false);
         }
     }
 }
