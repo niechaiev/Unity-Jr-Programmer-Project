@@ -10,6 +10,7 @@ namespace Units
 
         protected override void BuildingInRange()
         {
+            base.BuildingInRange();
             if (currentPile == null)
             {
                 ResourcePile pile = Target as ResourcePile;

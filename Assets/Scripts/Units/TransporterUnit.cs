@@ -31,6 +31,7 @@ namespace Units
 
         protected override void BuildingInRange()
         {
+            if(Target==null) return;
             if (Target == dropPoint)
             {
                 //we arrive at the base, unload!

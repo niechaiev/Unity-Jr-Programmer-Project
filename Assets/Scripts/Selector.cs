@@ -11,7 +11,6 @@ public class Selector
 
     public bool IsMultiSelect
     {
-        get => isMultiSelect;
         set => isMultiSelect = value;
     }
 
@@ -58,10 +57,9 @@ public class Selector
             AddSelected(units);
             return;
         }
-        
+
         foreach (var unit in units)
         {
-           
             if (IsSelected(unit))
                 RemoveSelected(unit);
             else
