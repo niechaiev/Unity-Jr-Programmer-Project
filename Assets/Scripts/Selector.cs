@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Units;
+using UnityEngine;
 
 public class Selector
 {
@@ -13,6 +14,8 @@ public class Selector
     {
         set => isMultiSelect = value;
     }
+
+    public Action<Unit> OnAddNewUnit;
 
 
     private void DeselectAll()
@@ -88,4 +91,11 @@ public class Selector
     {
         return SelectedUnits.Contains(unit);
     }
+
+    public void AddNewUnit(Unit unit)
+    {
+        AvailableUnits.Add(unit);
+        OnAddNewUnit?.Invoke(unit);
+    }
+
 }

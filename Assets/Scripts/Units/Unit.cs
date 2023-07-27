@@ -15,21 +15,28 @@ namespace Units
         UIMainScene.IUIInfoContent
     {
         [SerializeField] private GameObject ringDecal;
+        [SerializeField] private ProgressBar healthBar;
+        [SerializeField] private FaceCamera faceCamera;
+        
 
+        private const int MaxHealth = 100;
         public float Speed = 3;
-
-        protected NavMeshAgent Agent;
         protected Building Target;
+
+        private NavMeshAgent agent;
         private ColorSaver colorSaver;
         private Selector selector;
-        protected Vector3 destination;
+        private Vector3 destination;
+        private float health;
 
         protected void Awake()
         {
-            Agent = GetComponent<NavMeshAgent>();
-            Agent.speed = Speed;
-            Agent.acceleration = 999;
-            Agent.angularSpeed = 999;
+            agent = GetComponent<NavMeshAgent>();
+            agent.speed = Speed;
+            agent.acceleration = 999;
+            agent.angularSpeed = 999;
+            health = MaxHealth;
+            
         }
 
         [Inject]
@@ -39,14 +46,37 @@ namespace Units
             colorSaver = colorSaverRef;
         }
 
+        public void OnTakeDamage(int damage)
+        {
+            health -= damage;
+            healthBar.SetProgress(health, 3);
+            
+            if (health < 0)
+            {
+                OnDied();
+                agent.enabled = false;
+            }
+        }
+
+        private void OnDied()
+        {
+            Destroy(gameObject, 1f);
+        }
+
         private void Start()
         {
             if (colorSaver != null)
             {
                 SetColor(colorSaver.TeamColor);
             }
+            
 
-            selector.AvailableUnits.Add(this);
+            selector.AddNewUnit(this);
+        }
+
+        public void SetupHealthBar(Camera gameCamera)
+        {
+            faceCamera.camera = gameCamera.transform;
         }
 
         void SetColor(Color c)
@@ -75,8 +105,8 @@ namespace Units
             float distance = Vector3.Distance(destinationRef, transform.position);
             if (distance < 2.0f)
             {
-                Agent.isStopped = true;
-                Agent.ResetPath();
+                agent.isStopped = true;
+                agent.ResetPath();
                 BuildingInRange();
             }
         }
@@ -87,8 +117,8 @@ namespace Units
             destination = Vector3.zero;
             if (Target != null)
             {
-                Agent.SetDestination(Target.transform.position);
-                Agent.isStopped = false;
+                agent.SetDestination(Target.transform.position);
+                agent.isStopped = false;
             }
         }
 
@@ -97,8 +127,8 @@ namespace Units
             //we don't have a target anymore if we order to go to a random point.
             Target = null;
             destination = position;
-            Agent.SetDestination(position);
-            Agent.isStopped = false;
+            agent.SetDestination(position);
+            agent.isStopped = false;
         }
 
         /*public bool DestinationReached(Vector3 actualPosition)

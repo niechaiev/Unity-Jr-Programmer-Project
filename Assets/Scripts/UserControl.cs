@@ -12,6 +12,8 @@ public class UserControl : MonoBehaviour
     [SerializeField] private LayerMask clickable;
     [SerializeField] private RectTransform selectionBox;
     [SerializeField] private Camera gameCamera;
+    [SerializeField] private Canvas healthBarCanvas;
+    
     private Selector selector;
 
     private readonly float panSpeed = 10.0f;
@@ -26,6 +28,12 @@ public class UserControl : MonoBehaviour
     private void Construct(Selector selectorRef)
     {
         selector = selectorRef;
+        selector.OnAddNewUnit += SetupHealthBar;
+    }
+
+    private void SetupHealthBar(Unit unit)
+    {
+        unit.SetupHealthBar(gameCamera);
     }
 
     private void Start()
@@ -42,7 +50,7 @@ public class UserControl : MonoBehaviour
         inputReader.OnZoomCameraStarted += HandleCameraZoom;
         inputReader.OnMultiSelectStarted += HandleMultiSelect;
     }
-
+    
     private void HandleMultiSelect(bool state)
     {
         selector.IsMultiSelect = state;

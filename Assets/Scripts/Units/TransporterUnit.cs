@@ -10,6 +10,7 @@ namespace Units
     /// </summary>
     public class TransporterUnit : Unit
     {
+        [SerializeField] private GameObject box;
         public int MaxAmountTransported = 1;
 
         private Building currentTransportTarget;
@@ -31,14 +32,14 @@ namespace Units
 
         protected override void BuildingInRange()
         {
-            if(Target==null) return;
+            if (Target == null) return;
             if (Target == dropPoint)
             {
-                //we arrive at the base, unload!
                 if (transporting.Count > 0)
+                {
                     Target.AddItem(transporting.ResourceId, transporting.Count);
-
-                //we go back to the building we came from
+                    box.SetActive(false);
+                }
                 GoTo(currentTransportTarget);
                 transporting.Count = 0;
                 transporting.ResourceId = "";
@@ -49,6 +50,7 @@ namespace Units
                 {
                     transporting.ResourceId = Target.Inventory[0].ResourceId;
                     transporting.Count = Target.GetItem(transporting.ResourceId, MaxAmountTransported);
+                    box.SetActive(true);
                     currentTransportTarget = Target;
                     GoTo(dropPoint);
                 }
