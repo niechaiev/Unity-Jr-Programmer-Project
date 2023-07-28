@@ -76,7 +76,7 @@ namespace Units
 
         public void SetupHealthBar(Camera gameCamera)
         {
-            faceCamera.camera = gameCamera.transform;
+            faceCamera.CameraTransform = gameCamera.transform;
         }
 
         void SetColor(Color c)
