@@ -264,6 +264,19 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4691864322515542935, guid: db3b5e58d42e038498d17ead16d5721a, type: 3}
   m_PrefabInstance: {fileID: 7282239592017498451}
   m_PrefabAsset: {fileID: 0}
+--- !u!65 &4039378770511868298
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2599544475074376388}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.8, y: 2, z: 1.785}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &6165667326414042989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276,7 +289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10dce3fc2d9cb4440bf8047367db35c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ringDecal: {fileID: 6614100409513657968}
+  ringDecal: {fileID: 7015963830049078971}
   healthBar: {fileID: 9064706812299407819}
   faceCamera: {fileID: 2387968626305662487}
   Speed: 5
@@ -287,9 +300,9 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4691864322515542953, guid: db3b5e58d42e038498d17ead16d5721a, type: 3}
   m_PrefabInstance: {fileID: 7282239592017498451}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &6614100409513657968 stripped
+--- !u!1 &7015963830049078971 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 4523222701496522531, guid: db3b5e58d42e038498d17ead16d5721a, type: 3}
+  m_CorrespondingSourceObject: {fileID: 311315434868404200, guid: db3b5e58d42e038498d17ead16d5721a, type: 3}
   m_PrefabInstance: {fileID: 7282239592017498451}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &9064706812299407819 stripped
