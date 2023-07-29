@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UI;
 using UnityEngine;
 
 namespace Buildings
@@ -9,7 +10,7 @@ namespace Buildings
     /// This Base class handle modifying the inventory of resources.
     /// </summary>
     public abstract class Building : MonoBehaviour,
-        UIMainScene.IUIInfoContent
+        UIMainScene.IUIInfoContent, ISelectable
     {
         //need to be serializable for the save system, so maybe added the attribute just when doing the save system
         [Serializable]
@@ -96,6 +97,16 @@ namespace Buildings
         public void GetContent(ref List<InventoryEntry> content)
         {
             content.AddRange(inventory);
+        }
+
+        public void Selected(bool state)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Highlighted(bool state)
+        {
+            throw new NotImplementedException();
         }
     }
 }

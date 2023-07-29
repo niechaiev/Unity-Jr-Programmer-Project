@@ -52,12 +52,21 @@
                 },
                 {
                     "name": "SelectDrag",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "ee2c54cd-fcee-42e5-bf9a-4b24ae076e77",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "MoveMouse",
+                    "type": "Value",
+                    "id": "2a0141bc-2fdd-4e38-8046-edec05095396",
+                    "expectedControlType": "Delta",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -214,6 +223,17 @@
                     "action": "SelectDrag",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "3345c14f-10df-49b3-869b-c96e7474d4e4",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveMouse",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

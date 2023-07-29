@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Buildings;
 using Helpers;
+using UI;
 using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
@@ -12,11 +13,14 @@ namespace Units
 {
     [RequireComponent(typeof(NavMeshAgent))]
     public abstract class Unit : MonoBehaviour,
-        UIMainScene.IUIInfoContent
+        UIMainScene.IUIInfoContent, ISelectable
     {
         [SerializeField] private GameObject ringDecal;
         [SerializeField] private ProgressBar healthBar;
         [SerializeField] private FaceCamera faceCamera;
+        [SerializeField] private ReferenceCamera referenceCamera;
+        private GameObject healthCanvas;
+        
         
 
         private const int MaxHealth = 100;
@@ -37,6 +41,13 @@ namespace Units
             agent.angularSpeed = 999;
             health = MaxHealth;
             
+            if (colorSaver != null)
+            {
+                SetColor(colorSaver.TeamColor);
+            }
+            selector.AddNewUnit(this);
+            healthCanvas = faceCamera.GetComponentInParent<Transform>().gameObject;
+            healthCanvas.SetActive(false);
         }
 
         [Inject]
@@ -63,20 +74,10 @@ namespace Units
             Destroy(gameObject, 1f);
         }
 
-        private void Start()
-        {
-            if (colorSaver != null)
-            {
-                SetColor(colorSaver.TeamColor);
-            }
-            
-
-            selector.AddNewUnit(this);
-        }
-
         public void SetupHealthBar(Camera gameCamera)
         {
             faceCamera.CameraTransform = gameCamera.transform;
+            referenceCamera.GameCamera = gameCamera;
         }
 
         void SetColor(Color c)
@@ -169,15 +170,17 @@ namespace Units
         public virtual void GetContent(ref List<Building.InventoryEntry> content)
         {
         }
-
-        public void OnSelected()
+        
+        public void Selected(bool state)
         {
-            ringDecal.SetActive(true);
+            ringDecal.SetActive(state);
+            healthCanvas.SetActive(state);
         }
-
-        public void OnDeselected()
+        
+        public void Highlighted(bool state)
         {
-            ringDecal.SetActive(false);
+            healthCanvas.SetActive(state);
         }
+        
     }
 }

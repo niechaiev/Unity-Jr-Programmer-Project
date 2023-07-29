@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Buildings;
-using DefaultNamespace;
+using UI;
 using Units;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,11 +10,13 @@ public class UserControl : MonoBehaviour
 {
     [SerializeField] private InputReader inputReader;
     [SerializeField] private LayerMask clickable;
+    [SerializeField] private LayerMask ground;
     [SerializeField] private RectTransform selectionBox;
     [SerializeField] private Camera gameCamera;
     [SerializeField] private Canvas healthBarCanvas;
-    
+
     private Selector selector;
+    private UIMainScene uiMainScene;
 
     private readonly float panSpeed = 10.0f;
     private readonly float minZoom = 20;
@@ -25,10 +27,11 @@ public class UserControl : MonoBehaviour
 
 
     [Inject]
-    private void Construct(Selector selectorRef)
+    private void Construct(Selector selectorRef, UIMainScene uiMainSceneRef)
     {
         selector = selectorRef;
         selector.OnAddNewUnit += SetupHealthBar;
+        uiMainScene = uiMainSceneRef;
     }
 
     private void SetupHealthBar(Unit unit)
@@ -49,8 +52,27 @@ public class UserControl : MonoBehaviour
         inputReader.OnOrderStarted += HandleOrder;
         inputReader.OnZoomCameraStarted += HandleCameraZoom;
         inputReader.OnMultiSelectStarted += HandleMultiSelect;
+        inputReader.OnMouseMoveStarted += HandleMouseMove;
     }
-    
+
+    private void HandleMouseMove(InputAction.CallbackContext obj)
+    {
+        var mousePosition = Mouse.current.position.ReadValue();
+        var ray = gameCamera.ScreenPointToRay(mousePosition);
+
+        if (Physics.Raycast(ray, out var hit, Mathf.Infinity, clickable | ground))
+        {
+            var unit = hit.transform.GetComponentInParent<Unit>();
+            if (unit == null)
+            {
+                selector.DeHighlightAll();
+                return;
+            }
+
+            selector.Highlight(unit);
+        }
+    }
+
     private void HandleMultiSelect(bool state)
     {
         selector.IsMultiSelect = state;
@@ -101,7 +123,7 @@ public class UserControl : MonoBehaviour
             selector.Select(unit);
 
             var uiInfo = hit.collider.GetComponentInParent<UIMainScene.IUIInfoContent>();
-            UIMainScene.Instance.SetNewInfoContent(uiInfo);
+            uiMainScene.SetNewInfoContent(uiInfo);
         }
     }
 
@@ -135,8 +157,6 @@ public class UserControl : MonoBehaviour
 
         selectionBox.anchoredPosition = startMousePosition + new Vector2(width / 2, height / 2);
         selectionBox.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
-
-
     }
 
     private void ConfirmSelectionBox()
@@ -151,6 +171,7 @@ public class UserControl : MonoBehaviour
                 unitsToSelect.Add(availableUnit);
             }
         }
+
         selector.Select(unitsToSelect);
     }
 

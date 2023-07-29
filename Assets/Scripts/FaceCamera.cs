@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class FaceCamera : MonoBehaviour
 {
@@ -9,6 +6,7 @@ public class FaceCamera : MonoBehaviour
     
     void Update()
     {
-        transform.LookAt(CameraTransform);
+        var position = transform.position;
+        transform.LookAt(new Vector3(CameraTransform.position.x, position.y, position.z));
     }
 }

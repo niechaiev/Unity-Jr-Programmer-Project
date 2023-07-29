@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Units;
-using UnityEngine;
 
 public class Selector
 {
     public List<Unit> AvailableUnits = new();
     public HashSet<Unit> SelectedUnits = new();
+    public HashSet<Unit> HighlightedUnits = new();
+    
     private bool isMultiSelect;
 
     public bool IsMultiSelect
@@ -17,33 +18,51 @@ public class Selector
 
     public Action<Unit> OnAddNewUnit;
 
-
+    
     private void DeselectAll()
     {
         foreach (var selectedUnit in SelectedUnits)
-            selectedUnit.OnDeselected();
+            selectedUnit.Selected(false);
 
         SelectedUnits.Clear();
     }
+    
 
     private void AddSelected(Unit unit)
     {
-        unit.OnSelected();
+        unit.Selected(true);
         SelectedUnits.Add(unit);
     }
 
     private void AddSelected(List<Unit> units)
     {
         foreach (var unit in units)
-            unit.OnSelected();
+            unit.Selected(true);
 
         SelectedUnits.UnionWith(units);
     }
 
     private void RemoveSelected(Unit unit)
     {
-        unit.OnDeselected();
+        unit.Selected(false);
         SelectedUnits.Remove(unit);
+    }
+
+    public void Highlight(Unit unit)
+    {
+        DeHighlightAll();
+        HighlightedUnits.Add(unit);
+        unit.Highlighted(true);
+    }
+
+    public void DeHighlightAll()
+    {
+        foreach (var highlightedUnit in HighlightedUnits)
+        {
+            if(!SelectedUnits.Contains(highlightedUnit)) 
+                highlightedUnit.Highlighted(false);
+        }
+        HighlightedUnits.Clear();
     }
 
     public void Select(List<Unit> units)
